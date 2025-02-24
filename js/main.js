@@ -5,7 +5,7 @@ let app = new Vue({
         description: "A pair of warm, fuzzy socks",
         image: "./assets/vmSocks-blue-onWhite.jpg",
         altText: "A pair of socks",
-        inStock: true,
+        inStock: false,
         details: ['80% cotton', '20% polyester', 'Gender-neutral'],
         variants: [
             {

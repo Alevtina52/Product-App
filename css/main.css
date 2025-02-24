@@ -1,4 +1,4 @@
-body {
+.body {
     font-family: tahoma;
     color:#282828;
     margin: 0px;
@@ -75,6 +75,9 @@ button {
     width: 100px;
     font-size: 14px;
     border-radius: 5px;
+}
+.line-through {
+    text-decoration: line-through;
 }
 
 .disabledButton {
