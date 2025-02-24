@@ -13,7 +13,7 @@ Vue.component('product', {
 <div class="product-info">
     <h1>{{ title }}</h1>
     <p v-if="inStock">In stock</p>
-    <p v-else :class="{ 'line-through': !inStock }">Out of Stock</p>
+    <p v-else>Out of Stock</p>
 <ul>
     <p style="font-size: 20px">Состав</p>
     <product-details></product-details>
@@ -44,7 +44,6 @@ class="variant" :style="{ backgroundColor: variant.variantColor }" @mouseover="u
             onSale: 'sale',
             selectedVariant: 0,
             altText: "A pair of socks",
-            inStock: true,
             details: ['80% cotton', '20% polyester', 'Gender-neutral'],
             variants: [
                 {
@@ -210,7 +209,7 @@ Vue.component('product-tabs', {
         <product-review @review-submitted="addReview"></product-review>
       </div>
       <div v-show="selectedTab === 'Shipping'">
-        <p>Стоимость доставки: {{ shipping }}</p>
+        <p>Стоимость доставки: Free</p>
       </div>
       <div v-show="selectedTab === 'Details'">
         <ul>
@@ -250,6 +249,7 @@ let app = new Vue({
     data: {
         premium: true,
         cart: [],
+        inStock:true,
     },
     methods: {
         updateCart(id) {
