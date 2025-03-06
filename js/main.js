@@ -1,3 +1,4 @@
+
 Vue.component('product', {
     props: {
         premium: {
@@ -6,37 +7,31 @@ Vue.component('product', {
         }
     },
     template: `
-<div class="product">
-    <div class="product-image">
-    <img :src="image" :alt="altText"/>
+    <div class="product">
+        <div class="product-image">
+            <img :src="image" :alt="altText"/>
+        </div>
+        <div class="product-info">
+            <h1>{{ title }}</h1>
+            <p v-if="inStock">In stock</p>
+            <p v-else :class="{ 'line-through': !inStock }">Out of Stock</p>
+            <ul>
+                <p style="font-size: 20px">Состав</p>
+                <product-details></product-details>
+            </ul>
+            <p>Shipping: {{ shipping }}</p>
+            <div v-for="(variant, index) in variants" :key="variant.variantId"
+                 class="variant" :style="{ backgroundColor: variant.variantColor }" @mouseover="updateProduct(index)">
+            </div>
+            <ul>
+                <li v-for="size in sizes" >{{ size }}</li>
+            </ul>
+            <button @click="addToCart" :disabled="!inStock" :class="{ disabledButton: !inStock }">Add to cart</button>
+            <button @click="decreaseCart" :disabled="!inStock" :class="{ disabledButton: !inStock }">Delete</button>
+        </div>
+        <product-tabs :reviews="reviews" :shipping="shipping" :details="details"></product-tabs>
     </div>
-<div class="product-info">
-    <h1>{{ title }}</h1>
-    <p v-if="inStock">In stock</p>
-    <p v-else>Out of Stock</p>
-<ul>
-    <p style="font-size: 20px">Состав</p>
-    <product-details></product-details>
-</ul>
-
-<p>User is premium: {{ premium }}</p>
-<p>Shipping: {{ shipping }}</p>
-<div v-for="(variant, index) in variants" :key="variant.variantId"
-class="variant" :style="{ backgroundColor: variant.variantColor }" @mouseover="updateProduct(index)">
-    </div>
-<ul>
-    <li v-for="size in sizes" >{{ size }}</li>
-</ul>
-
-            <button v-on:click="addToCart" :disabled="!inStock"
-                    :class="{ disabledButton: !inStock }">Add to cart</button>
-            <button v-on:click="decreaseCart" :disabled="!inStock"
-                    :class="{ disabledButton: !inStock }">Delete</button>
-                  
-  </div>
-        <product-tabs :reviews="reviews"></product-tabs>
-    </div>
-`,
+    `,
     data() {
         return {
             product: "Socks",
@@ -61,49 +56,51 @@ class="variant" :style="{ backgroundColor: variant.variantColor }" @mouseover="u
             ],
             sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
             cart: 0,
-            updateProduct(index) {
-                this.selectedVariant = index;
-                console.log(index);
-
-
-            },
-            reviews: [],
+            // Загрузка из localStorage
+            reviews: JSON.parse(localStorage.getItem('productReviews') || '[]')
         }
     },
     methods: {
         addToCart() {
-            this.$emit('add-to-cart',
-                this.variants[this.selectedVariant].variantId);
+            this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId);
         },
         decreaseCart() {
-            this.$emit('delete-to-cart',
-                this.variants[this.selectedVariant].variantId);
+            this.$emit('delete-to-cart', this.variants[this.selectedVariant].variantId);
         },
         addReview(productReview) {
-            this.reviews.push(productReview)
+            this.reviews.push(productReview);
+            this.saveReviewsToStorage();
+        },
+        saveReviewsToStorage() {
+            localStorage.setItem('productReviews', JSON.stringify(this.reviews));
+        },
+        updateProduct(index) {
+            this.selectedVariant = index;
         }
     },
     computed: {
         title() {
-            return this.brand + ' ' + this.product + ' ' + this.onSale;
+            return `${this.brand} ${this.product} ${this.onSale}`;
         },
         image() {
             return this.variants[this.selectedVariant].variantImage;
         },
-        inStock(){
-            return this.variants[this.selectedVariant].variantQuantity
+        inStock() {
+            return this.variants[this.selectedVariant].variantQuantity > 0;
         },
         shipping() {
-            if (this.premium) {
-                return "Free";
-            } else {
-                return 2.99
+            return this.premium ? 'Free' : '2.99';
+        }
+    },
+    watch: {
+        reviews: {
+            deep: true,
+            handler() {
+                this.saveReviewsToStorage();
             }
         }
-
     }
-
-})
+});
 
 Vue.component('product-details', {
     template: `
