@@ -193,9 +193,14 @@ Vue.component('product-tabs', {
               @click="selectedTab = tab">{{ tab }}</span>
       </ul>
       <div v-show="selectedTab === 'Отзывы'">
-        <p v-if="!reviews.length">Отзывов пока нет.</p>
+        <!-- Добавлен фильтр по оценке -->
+        <select v-model="selectedRatingFilter" class="filter-select">
+          <option value="all">Все отзывы</option>
+          <option v-for="n in 5" :key="n" :value="n">Оценка {{ n }}</option>
+        </select>
+        <p v-if="filteredReviews.length === 0">Отзывов по данному фильтру нет.</p>
         <ul>
-          <li v-for="review in reviews">
+          <li v-for="review in filteredReviews">
             <p>{{ review.name }}</p>
             <p>Оценка: {{ review.rating }}</p>
             <p>{{ review.review }}</p>
@@ -206,7 +211,7 @@ Vue.component('product-tabs', {
         <product-review @review-submitted="addReview"></product-review>
       </div>
       <div v-show="selectedTab === 'Shipping'">
-        <p>Стоимость доставки: Free</p>
+        <p>Стоимость доставки: {{ shipping }}</p>
       </div>
       <div v-show="selectedTab === 'Details'">
         <ul>
@@ -232,8 +237,21 @@ Vue.component('product-tabs', {
     data() {
         return {
             tabs: ['Отзывы', 'Оставить отзыв', 'Shipping', 'Details'],
-            selectedTab: 'Отзывы'
+            selectedTab: 'Отзывы',
+            selectedRatingFilter: 'all' // Новое состояние для фильтрации
         };
+    },
+    computed: {
+        // Фильтруем отзывы по выбранной оценке
+        filteredReviews() {
+            if (this.selectedRatingFilter === 'all') {
+                return this.reviews;
+            } else {
+                return this.reviews.filter(review =>
+                    review.rating === parseInt(this.selectedRatingFilter)
+                );
+            }
+        }
     },
     methods: {
         addReview(productReview) {
@@ -241,6 +259,7 @@ Vue.component('product-tabs', {
         }
     }
 });
+
 let app = new Vue({
     el: '#app',
     data: {
